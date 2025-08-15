@@ -33,7 +33,7 @@
 ``` yaml
 shardingsphere:
   data-sources:
-    - jdbc-url: jdbc:mysql://
+    - jdbc-url: jdbc:mysql://...
       username: xxx
       password: yyy
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -59,11 +59,11 @@ shardingsphere:
 ``` yaml
 shardingsphere:
   data-sources:
-    - jdbc-url: jdbc:mysql://
+    - jdbc-url: jdbc:mysql://...
       username: xxx
       password: yyy
       ...
-    - jdbc-url: jdbc:mysql://
+    - jdbc-url: jdbc:mysql://...
       username: xxx
       password: yyy
       ...
@@ -82,11 +82,11 @@ shardingsphere:
 ``` yaml
 shardingsphere:
   data-sources:
-    - jdbc-url: jdbc:mysql://
+    - jdbc-url: jdbc:mysql://...
       username: xxx
       password: yyy
       ...
-    - jdbc-url: jdbc:mysql://
+    - jdbc-url: jdbc:mysql://...
       username: xxx
       password: yyy
       ...
