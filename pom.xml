@@ -12,7 +12,7 @@
     <groupId>com.github.hsindumas</groupId>
     <artifactId>shardingsphere-jdbc-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 
     <name>shardingsphere-jdbc-spring-boot-starter</name>
     <description>适用于 shardingsphere-jdbc 的 spring-boot-starter (Spring Boot 3.x)</description>

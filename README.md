@@ -42,6 +42,7 @@ shardingsphere:
       idle-timeout: 60000
       min-idle: 5
       connection-test-query: SELECT 1
+      ...
   tables:
     - logic-table: test_table
       actual-data-nodes: test_table_${0..9}

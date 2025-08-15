@@ -12,7 +12,6 @@ import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardS
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -41,7 +40,8 @@ public class ShardingsphereJdbcAutoConfiguration {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         for (int i = 0; i < shardingProperties.getDataSources().size(); i++) {
             dataSourceMap.put(
-                    "ds_" + i, dataSource(shardingProperties.getDataSources().get(i)));
+                    "ds_" + i,
+                    new HikariDataSource(shardingProperties.getDataSources().get(i)));
         }
 
         ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
@@ -76,20 +76,5 @@ public class ShardingsphereJdbcAutoConfiguration {
                 dataSourceMap,
                 List.of(shardingRuleConfig),
                 shardingProperties.getProps());
-    }
-
-    private HikariDataSource dataSource(ShardingProperties.DataSource dd) {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl(dd.getJdbcUrl());
-        dataSource.setUsername(dd.getUsername());
-        dataSource.setPassword(dd.getPassword());
-        dataSource.setDriverClassName(dd.getDriverClassName());
-        dataSource.setMaximumPoolSize(dd.getMaxPoolSize());
-        dataSource.setMinimumIdle(dd.getMinIdle());
-        dataSource.setIdleTimeout(dd.getIdleTimeout());
-        if (!StringUtils.hasLength(dd.getConnectionTestQuery())) {
-            dataSource.setConnectionTestQuery(dd.getConnectionTestQuery());
-        }
-        return dataSource;
     }
 }
