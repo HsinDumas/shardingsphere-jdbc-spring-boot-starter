@@ -9,7 +9,8 @@
 
 1. 由于官方提供的 starter 停止维护，因此本项目基于 shardingsphere-jdbc 进行一定的配置封装
 2. 目前只适配了 Spring Boot 3.x
-2. 从 shardingsphere-jdbc 5.2.2 开始，同步更新 starter 版本，版本号保持一致
+3. 从 shardingsphere-jdbc 5.2.2 开始，同步更新 starter 版本，版本号保持一致
+4. 使用 hikari 作为数据库连接池
 
 > 🚀项目持续优化迭代，欢迎大家提ISSUE和PR！麻烦大家能给一颗star✨，您的star是我们持续更新的动力！
 
