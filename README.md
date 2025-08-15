@@ -36,6 +36,11 @@ shardingsphere:
     - jdbc-url: jdbc:mysql://
       username: xxx
       password: yyy
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      max-pool-size: 20
+      idle-timeout: 60000
+      min-idle: 5
+      connection-test-query: SELECT 1
   tables:
     - logic-table: test_table
       actual-data-nodes: test_table_${0..9}
@@ -57,9 +62,11 @@ shardingsphere:
     - jdbc-url: jdbc:mysql://
       username: xxx
       password: yyy
+      ...
     - jdbc-url: jdbc:mysql://
       username: xxx
       password: yyy
+      ...
   tables:
     - logic-table: test_table
       actual-data-nodes: ds_${0..1}.test_table
@@ -78,9 +85,11 @@ shardingsphere:
     - jdbc-url: jdbc:mysql://
       username: xxx
       password: yyy
+      ...
     - jdbc-url: jdbc:mysql://
       username: xxx
       password: yyy
+      ...
   tables:
     - logic-table: test_table
       actual-data-nodes: ds_${0..1}.test_table_${0..9}
