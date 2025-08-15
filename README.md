@@ -28,7 +28,9 @@
 
 ### 配置属性
 
-``` 分表
+分表
+
+``` yaml
 shardingsphere:
   data-sources:
     - jdbc-url: jdbc:mysql://
@@ -44,7 +46,9 @@ shardingsphere:
           algorithm-expression: test_${Math.abs(test_column.hashCode()) % 10}
 ```
 
-``` 分库
+分库分表
+
+``` yaml
 shardingsphere:
   data-sources:
     - jdbc-url: jdbc:mysql://
@@ -63,7 +67,9 @@ shardingsphere:
           algorithm-expression: ds_${Math.abs(test_column.hashCode()) % 2}
 ```
 
-``` 分库分表
+分库分表
+
+``` yaml
 shardingsphere:
   data-sources:
     - jdbc-url: jdbc:mysql://
@@ -87,7 +93,10 @@ shardingsphere:
           algorithm-expression: ds_${Math.abs(test_column.hashCode()) % 2}
 ```
 
-``` 除了 INLINE 还支持 CLASS_BASED (具体 prop 请看源码 org.apache.shardingsphere.sharding.algorithm.sharding.classbased.ClassBasedShardingAlgorithm)
+除了 INLINE 还支持 CLASS_BASED (具体 prop 请看源码
+org.apache.shardingsphere.sharding.algorithm.sharding.classbased.ClassBasedShardingAlgorithm)
+
+``` yaml
 shardingsphere:
   ...
   tables:
