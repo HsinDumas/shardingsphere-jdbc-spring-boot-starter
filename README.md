@@ -109,7 +109,7 @@ shardingsphere:
 
 #### 除了 INLINE 还支持 CLASS_BASED
 
-具体 prop 请看源码 org.apache.shardingsphere.sharding.algorithm.sharding.classbased.ClassBasedShardingAlgorithm)
+具体 props 请看源码 org.apache.shardingsphere.sharding.algorithm.sharding.classbased.ClassBasedShardingAlgorithm)
 
 ``` yaml
 shardingsphere:
