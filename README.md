@@ -28,7 +28,7 @@
 
 ### 配置属性
 
-分表
+#### 分表
 
 ``` yaml
 shardingsphere:
@@ -46,7 +46,10 @@ shardingsphere:
           algorithm-expression: test_${Math.abs(test_column.hashCode()) % 10}
 ```
 
-分库分表
+#### 分库
+
+会按照配置的顺序，自动为 datasource 加上 `ds_` 的前缀作为库的唯一标识。
+相应的在配置算法时也要使用 `ds_0`、`ds_1`... 来表示不同的库。
 
 ``` yaml
 shardingsphere:
@@ -67,7 +70,7 @@ shardingsphere:
           algorithm-expression: ds_${Math.abs(test_column.hashCode()) % 2}
 ```
 
-分库分表
+#### 分库+分表
 
 ``` yaml
 shardingsphere:
@@ -93,8 +96,9 @@ shardingsphere:
           algorithm-expression: ds_${Math.abs(test_column.hashCode()) % 2}
 ```
 
-除了 INLINE 还支持 CLASS_BASED (具体 prop 请看源码
-org.apache.shardingsphere.sharding.algorithm.sharding.classbased.ClassBasedShardingAlgorithm)
+#### 除了 INLINE 还支持 CLASS_BASED
+
+具体 prop 请看源码 org.apache.shardingsphere.sharding.algorithm.sharding.classbased.ClassBasedShardingAlgorithm)
 
 ``` yaml
 shardingsphere:
