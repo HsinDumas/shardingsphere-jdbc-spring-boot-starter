@@ -14,9 +14,8 @@ version = resolvedVersion.get()
 
 val springBootVersion = providers.gradleProperty("springBootVersion").get()
 val shardingsphereVersion = providers.gradleProperty("shardingsphereVersion").get()
-val springBootMajor = springBootVersion.substringBefore('.').toIntOrNull() ?: 3
 val javaToolchainVersion = 25
-val javaReleaseVersion = if (springBootMajor >= 4) 21 else 17
+val javaReleaseVersion = 17
 
 java {
     toolchain {

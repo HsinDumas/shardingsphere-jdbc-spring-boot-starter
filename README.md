@@ -148,7 +148,7 @@ shardingsphere:
 构建策略：
 
 1. 统一使用 Java 25 toolchain 编译。
-2. 使用 `--release` 控制产物兼容级别：Boot 3 -> 17，Boot 4 -> 21。
+2. 统一使用 `--release 17`，保证产物可运行在 JDK 17 及以上。
 
 按 Spring Boot 版本验证：
 
