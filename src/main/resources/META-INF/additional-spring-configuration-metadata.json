@@ -1,0 +1,25 @@
+{
+  "properties": [
+    {
+      "name": "shardingsphere.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable shardingsphere-jdbc-spring-boot-starter auto-configuration.",
+      "defaultValue": false
+    },
+    {
+      "name": "shardingsphere.data-sources",
+      "type": "java.util.List<com.github.dumas.shardingsphere.jdbc.properties.ShardingProperties$DataSource>",
+      "description": "Logical datasource list used by ShardingSphere. Datasources are indexed and exposed as ds_0, ds_1..."
+    },
+    {
+      "name": "shardingsphere.tables",
+      "type": "java.util.List<com.github.dumas.shardingsphere.jdbc.properties.ShardingProperties$Table>",
+      "description": "Sharding table rules."
+    },
+    {
+      "name": "shardingsphere.props",
+      "type": "java.util.Properties",
+      "description": "Additional ShardingSphere runtime properties."
+    }
+  ]
+}
