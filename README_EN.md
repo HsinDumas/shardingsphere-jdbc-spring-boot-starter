@@ -8,6 +8,14 @@
 
 A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with conservative defaults and practical sharding setup.
 
+## Why This Project
+
+1. A practical replacement after the official Spring Boot starter was discontinued.
+2. Conservative-by-default behavior: explicit enablement and DataSource back-off for safer adoption.
+3. Single codebase for Spring Boot 3.x / 4.x with CI matrix verification.
+4. Unified Java 25 toolchain build with JDK 17+ runtime compatibility.
+5. Release-grade workflow: tag-driven publishing to Maven Central with documented release process.
+
 ## Goals
 
 1. Provide a usable Spring Boot option after the official starter was discontinued.
