@@ -22,6 +22,17 @@
 
 ## 快速开始
 
+### 启用自动装配
+
+从 `1.0.5-SNAPSHOT` 开始，starter 默认不抢占 `DataSource`。需要显式开启：
+
+```yaml
+shardingsphere:
+  enabled: true
+```
+
+如果业务已自行声明 `DataSource` Bean，本 starter 会自动让出（不覆盖业务 Bean）。
+
 ### 引入依赖
 
 ```xml

@@ -10,6 +10,9 @@ import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardShardingStrategyConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
@@ -25,6 +28,8 @@ import java.util.Properties;
  * @author Dumas
  */
 @AutoConfiguration
+@ConditionalOnClass(ShardingSphereDataSourceFactory.class)
+@ConditionalOnProperty(prefix = "shardingsphere", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(ShardingProperties.class)
 public class ShardingsphereJdbcAutoConfiguration {
 
@@ -35,6 +40,7 @@ public class ShardingsphereJdbcAutoConfiguration {
     }
 
     @Bean
+        @ConditionalOnMissingBean(DataSource.class)
     public DataSource dataSource() throws SQLException {
 
         Map<String, DataSource> dataSourceMap = new HashMap<>();

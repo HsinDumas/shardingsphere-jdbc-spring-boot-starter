@@ -20,6 +20,11 @@ import java.util.Properties;
 @ConfigurationProperties(prefix = "shardingsphere")
 public class ShardingProperties {
 
+    /**
+     * Whether to enable this starter auto-configuration.
+     */
+    private boolean enabled;
+
     @NotEmpty
     private List<HikariConfig> dataSources;
 
