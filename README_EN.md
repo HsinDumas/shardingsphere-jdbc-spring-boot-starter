@@ -39,7 +39,19 @@ A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with 
     <artifactId>shardingsphere-jdbc-spring-boot-starter</artifactId>
   <version>1.1.0</version>
 </dependency>
+
+<!-- Application-side JDBC runtime dependencies -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+  <groupId>com.mysql</groupId>
+  <artifactId>mysql-connector-j</artifactId>
+</dependency>
 ```
+
+Note: this starter does not transitively provide your business JDBC driver. Add the driver dependency in your application based on your target database.
 
 ### 2) Explicit Enable
 
@@ -166,6 +178,7 @@ Build strategy:
 
 1. Build with Java 25 toolchain.
 2. Use --release 17 so artifacts run on JDK 17+.
+3. For local builds, use JDK 25 (or enable Gradle toolchain auto-download). Runtime baseline is JDK 17+.
 
 Per-version verification:
 

@@ -16,12 +16,6 @@
 4. 支持范围明确：支持 Spring Boot 3.x / 4.x。
 5. 产物兼容 JDK 17+，大多数现有运行环境可直接使用。
 
-这个项目的目标很明确：
-
-1. 给官方 Starter 停更后的 Spring Boot 3/4 用户一个可用选项。
-2. 保持配置简单，覆盖常见分库分表场景。
-3. 默认不侵入业务 DataSource（显式启用，支持业务侧覆盖）。
-
 ## Compatibility
 
 | starter | shardingsphere-jdbc | Spring Boot (Supported) |
@@ -39,7 +33,19 @@
     <artifactId>shardingsphere-jdbc-spring-boot-starter</artifactId>
   <version>1.1.0</version>
 </dependency>
+
+<!-- 应用侧需要显式提供 JDBC 运行时依赖 -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+  <groupId>com.mysql</groupId>
+  <artifactId>mysql-connector-j</artifactId>
+</dependency>
 ```
+
+说明：本 starter 不会传递业务 JDBC 驱动，请在应用侧按实际数据库类型引入对应驱动。
 
 ### 2) 显式启用
 
@@ -166,6 +172,7 @@ shardingsphere:
 
 1. 统一使用 Java 25 toolchain 编译。
 2. 统一使用 `--release 17`，保证产物可运行在 JDK 17 及以上。
+3. 本地构建建议使用 JDK 25（或启用 Gradle toolchain 自动下载），运行时最低为 JDK 17。
 
 按 Spring Boot 版本验证：
 

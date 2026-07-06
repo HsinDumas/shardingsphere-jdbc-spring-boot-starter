@@ -109,7 +109,7 @@ mavenPublishing {
 
     pom {
         name = "shardingsphere-jdbc-spring-boot-starter"
-        description = "适用于 shardingsphere-jdbc 的 spring-boot-starter (Spring Boot 3.x)"
+        description = "适用于 shardingsphere-jdbc 的 spring-boot-starter (Spring Boot 3.x / 4.x)"
         url = "https://github.com/HsinDumas/shardingsphere-jdbc-spring-boot-starter"
 
         licenses {
