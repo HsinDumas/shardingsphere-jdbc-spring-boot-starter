@@ -19,11 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-        - name: Set up JDK 25
+      - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-            java-version: '25'
+          java-version: '25'
           cache: gradle
 
       - name: Build with Gradle (Spring Boot ${{ matrix.spring-boot-version }})
