@@ -36,7 +36,6 @@ dependencies {
     implementation("org.apache.shardingsphere:shardingsphere-standalone-mode-repository-api:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-standalone-mode-repository-jdbc:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-infra-data-source-pool-hikari:$shardingsphereVersion")
-    implementation("com.zaxxer:HikariCP")
 
     compileOnly(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
     annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion"))
