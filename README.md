@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![JDK](https://img.shields.io/badge/JDK-17+-4EB1BA.svg)](https://docs.oracle.com/en/java/javase/17/)
-[![Spring Boot](https://img.shields.io/badge/SpringBoot-3.x-green.svg)](https://docs.spring.io/spring-boot/docs/current/reference/html/)
+[![Spring Boot](https://img.shields.io/badge/SpringBoot-3.x%20%7C%204.x-green.svg)](https://docs.spring.io/spring-boot/docs/current/reference/html/)
 
 让 ShardingSphere JDBC 在 Spring Boot 3 里更好接入，少一点胶水代码，多一点可维护性。
 
@@ -16,7 +16,8 @@
 
 | starter | shardingsphere-jdbc | Spring Boot |
 | --- | --- | --- |
-| 1.0.4 | 5.5.2 | 3.x |
+| 1.0.4 | 5.5.2 | 3.4.x |
+| 1.0.4 | 5.5.2 | 4.0.x |
 
 ## Quick Start
 
@@ -142,6 +143,16 @@ shardingsphere:
 ```bash
 ./gradlew clean build
 ./gradlew test
+```
+
+按 Spring Boot 版本验证：
+
+```bash
+# Boot 3
+./gradlew clean test -PspringBootVersion=3.4.8
+
+# Boot 4
+./gradlew clean test -PspringBootVersion=4.0.0
 ```
 
 ## Release

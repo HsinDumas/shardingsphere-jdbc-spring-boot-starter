@@ -9,16 +9,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - spring-boot-version: '3.4.8'
+            java-version: '17'
+          - spring-boot-version: '4.0.0'
+            java-version: '21'
 
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up JDK 17
+      - name: Set up JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: ${{ matrix.java-version }}
           cache: gradle
 
-      - name: Build with Gradle
-        run: ./gradlew --no-daemon clean build
+      - name: Build with Gradle (Spring Boot ${{ matrix.spring-boot-version }})
+        run: ./gradlew --no-daemon clean build -PspringBootVersion=${{ matrix.spring-boot-version }}

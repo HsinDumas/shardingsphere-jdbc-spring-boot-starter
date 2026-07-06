@@ -14,10 +14,17 @@ version = resolvedVersion.get()
 
 val springBootVersion = providers.gradleProperty("springBootVersion").get()
 val shardingsphereVersion = providers.gradleProperty("shardingsphereVersion").get()
+val springBootMajor = springBootVersion.substringBefore('.').toIntOrNull() ?: 3
+val currentJavaMajor = JavaVersion.current().majorVersion.toIntOrNull() ?: 17
+val javaToolchainVersion = if (springBootMajor >= 4) {
+    maxOf(21, currentJavaMajor)
+} else {
+    17
+}
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(javaToolchainVersion)
     }
     withSourcesJar()
     withJavadocJar()
