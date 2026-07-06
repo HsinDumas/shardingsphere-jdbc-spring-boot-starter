@@ -171,25 +171,9 @@ shardingsphere:
 
 项目使用 Gradle + GitHub Actions 的 tag 驱动发布。
 
-```bash
-# 查看版本
-./gradlew printVersion
+完整发布流程请见 [docs/release.md](docs/release.md)。
 
-# 发布 snapshot 到 Maven Central snapshot 仓库
-./gradlew publishSnapshotToMavenCentral
-
-# CI tag 发布到 Maven Central（本地一般不直接跑）
-./gradlew -PreleaseVersion=1.0.4 publishReleaseToMavenCentral
-```
-
-正式发布方式：
-
-```bash
-git tag v1.0.4
-git push origin v1.0.4
-```
-
-发布成功后，workflow 会自动把 `gradle.properties` 里的 `projectVersion` bump 到下一个 `-SNAPSHOT`。
+Wiki 索引请见 [docs/wiki/README.md](docs/wiki/README.md)。
 
 ## Upgrade Notes (5.5.x)
 
