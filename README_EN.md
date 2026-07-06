@@ -1,29 +1,29 @@
 # shardingsphere-jdbc-spring-boot-starter
 
-[English](README_EN.md)
+[中文](README.md)
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![JDK](https://img.shields.io/badge/JDK-17+-4EB1BA.svg)](https://docs.oracle.com/en/java/javase/17/)
 [![Spring Boot](https://img.shields.io/badge/SpringBoot-3.x%20%7C%204.x-green.svg)](https://docs.spring.io/spring-boot/docs/current/reference/html/)
 
-让 ShardingSphere JDBC 在 Spring Boot 3/4 里更好接入，少一点胶水代码，多一点可维护性。
+A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with conservative defaults and practical sharding setup.
 
-这个项目的目标很明确：
+## Goals
 
-1. 给官方 Starter 停更后的 Spring Boot 3/4 用户一个可用选项。
-2. 保持配置简单，覆盖常见分库分表场景。
-3. 默认不侵入业务 DataSource（显式启用，支持业务侧覆盖）。
+1. Provide a usable Spring Boot option after the official starter was discontinued.
+2. Keep configuration focused and practical for common sharding scenarios.
+3. Stay non-invasive by default (explicit enable + datasource back-off behavior).
 
 ## Compatibility
 
 | starter | shardingsphere-jdbc | Spring Boot (Supported) | CI Verified |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | 1.0.4 | 5.5.2 | 3.x | 3.4.x |
 | 1.0.4 | 5.5.2 | 4.x | 4.0.x |
 
 ## Quick Start
 
-### 1) 引入依赖
+### 1) Dependency
 
 ```xml
 <dependency>
@@ -33,23 +33,23 @@
 </dependency>
 ```
 
-### 2) 显式启用
+### 2) Explicit Enable
 
 ```yaml
 shardingsphere:
   enabled: true
 ```
 
-默认不抢占 `DataSource`。如果业务已定义 `DataSource` Bean，本 starter 会自动让出。
+This starter does not take over an existing DataSource bean by default.
 
-这是一种保守策略：当容器中已存在业务侧普通 `DataSource` 时，本 starter 不会再创建分片 `DataSource`，因此分库分表能力不会由本 starter 接管。
+This is intentional and conservative: if your app already has a regular business DataSource bean, this starter backs off and will not create a sharding DataSource automatically.
 
-### 推荐用法
+### Recommended Usage
 
-1. 想让本 starter 自动接管分片：不要再额外定义普通 `DataSource` Bean。
-2. 想完全自定义 `DataSource`：请手动创建并注入 `ShardingSphereDataSource`，不要依赖本 starter 自动装配。
+1. If you want this starter to create and own the sharding datasource, do not define another regular DataSource bean.
+2. If you want full custom datasource wiring, create and inject ShardingSphereDataSource manually.
 
-### 3) 最小分表示例
+### 3) Minimal Table Sharding Example
 
 ```yaml
 shardingsphere:
@@ -78,7 +78,7 @@ shardingsphere:
 
 ## Configuration Examples
 
-### 分库
+### Database Sharding
 
 ```yaml
 shardingsphere:
@@ -102,7 +102,7 @@ shardingsphere:
           algorithm-expression: ds_${Math.abs(user_id.hashCode()) % 2}
 ```
 
-### 分库 + 分表
+### Database + Table Sharding
 
 ```yaml
 shardingsphere:
@@ -131,7 +131,7 @@ shardingsphere:
           algorithm-expression: t_order_${Math.abs(order_id.hashCode()) % 16}
 ```
 
-### CLASS_BASED 算法
+### CLASS_BASED Algorithm
 
 ```yaml
 shardingsphere:
@@ -154,12 +154,12 @@ shardingsphere:
 ./gradlew test
 ```
 
-构建策略：
+Build strategy:
 
-1. 统一使用 Java 25 toolchain 编译。
-2. 统一使用 `--release 17`，保证产物可运行在 JDK 17 及以上。
+1. Build with Java 25 toolchain.
+2. Use --release 17 so artifacts run on JDK 17+.
 
-按 Spring Boot 版本验证：
+Per-version verification:
 
 ```bash
 # Boot 3
@@ -171,23 +171,23 @@ shardingsphere:
 
 ## Release
 
-项目使用 Gradle + GitHub Actions 的 tag 驱动发布。
+Release is tag-driven via Gradle + GitHub Actions.
 
-完整发布流程请见 [docs/release.md](docs/release.md)。
+See [docs/release.md](docs/release.md) for full release steps.
 
-Wiki 索引请见 [docs/wiki/README.md](docs/wiki/README.md)。
+See [docs/wiki/README.md](docs/wiki/README.md) for wiki index.
 
 ## Upgrade Notes (5.5.x)
 
-1. 当前 starter 内置对齐 `shardingsphere-jdbc` 5.5.2，建议避免业务侧重复引入不同版本。
-2. 官方 5.3.0+ 已移除 Spring Boot Starter 形态，可继续使用本 starter，或改走官方 JDBC Driver 方案。
-3. 升级时重点回归分片算法 props 和 SQL 路由结果。
+1. This starter aligns to shardingsphere-jdbc 5.5.2; avoid adding conflicting shardingsphere-jdbc versions in your app.
+2. Official Spring Boot Starter shape was removed since 5.3.0; use this starter or switch to the official JDBC Driver approach.
+3. During upgrades, re-validate sharding algorithm props and SQL routing behavior.
 
 ## Contributing
 
-欢迎 Issue 和 PR。
+Issues and PRs are welcome.
 
-如果这个项目帮到了你，欢迎点个 Star。
+If this project helps you, a star is appreciated.
 
 ## License
 
