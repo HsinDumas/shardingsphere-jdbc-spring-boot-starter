@@ -8,7 +8,7 @@
     },
     {
       "name": "shardingsphere.data-sources",
-      "type": "java.util.List<com.github.dumas.shardingsphere.jdbc.properties.ShardingProperties$DataSource>",
+      "type": "java.util.List<com.zaxxer.hikari.HikariConfig>",
       "description": "Logical datasource list used by ShardingSphere. Datasources are indexed and exposed as ds_0, ds_1..."
     },
     {
