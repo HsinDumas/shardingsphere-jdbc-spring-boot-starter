@@ -55,7 +55,7 @@ jobs:
           set -euo pipefail
 
           git fetch --tags --force
-          PREV_TAG="$(git tag --sort=-v:refname | grep -v "^${CURRENT_TAG}$" | head -n 1 || true)"
+          PREV_TAG="$(git tag --sort=-v:refname | awk -v tag="$CURRENT_TAG" '$0 != tag { print; exit }')"
           if [[ -n "$PREV_TAG" ]]; then
             RANGE="${PREV_TAG}..${CURRENT_TAG}"
           else
