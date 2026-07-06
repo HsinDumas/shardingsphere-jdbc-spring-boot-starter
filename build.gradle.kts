@@ -21,8 +21,6 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(javaToolchainVersion)
     }
-    withSourcesJar()
-    withJavadocJar()
 }
 
 repositories {
