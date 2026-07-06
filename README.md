@@ -13,7 +13,7 @@
 1. 官方 Starter 停更后，仍可在 Spring Boot 3/4 项目里快速接入 ShardingSphere JDBC。
 2. 默认保守策略（显式启用 + DataSource 自动让出），降低存量系统改造风险。
 3. 配置路径清晰，常见分库分表场景可直接参考示例上手。
-4. 支持范围明确：支持 Spring Boot 3.x / 4.x，并有 CI 验证。
+4. 支持范围明确：支持 Spring Boot 3.x / 4.x。
 5. 产物兼容 JDK 17+，大多数现有运行环境可直接使用。
 
 这个项目的目标很明确：
@@ -24,10 +24,9 @@
 
 ## Compatibility
 
-| starter | shardingsphere-jdbc | Spring Boot (Supported) | CI Verified |
-| --- | --- | --- | --- |
-| 1.0.4 | 5.5.2 | 3.x | 3.4.x |
-| 1.0.4 | 5.5.2 | 4.x | 4.0.x |
+| starter | shardingsphere-jdbc | Spring Boot (Supported) |
+| --- | --- | --- |
+| 1.1.0 | 5.5.3 | 3.x / 4.x |
 
 ## Quick Start
 
@@ -37,7 +36,7 @@
 <dependency>
     <groupId>com.github.hsindumas</groupId>
     <artifactId>shardingsphere-jdbc-spring-boot-starter</artifactId>
-    <version>1.0.4</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -189,7 +188,7 @@ Wiki English index: [docs/wiki/README_EN.md](docs/wiki/README_EN.md).
 
 ## Upgrade Notes (5.5.x)
 
-1. 当前 starter 内置对齐 `shardingsphere-jdbc` 5.5.2，建议避免业务侧重复引入不同版本。
+1. 当前 starter 内置对齐 `shardingsphere-jdbc` 5.5.3，建议避免业务侧重复引入不同版本。
 2. 官方 5.3.0+ 已移除 Spring Boot Starter 形态，可继续使用本 starter，或改走官方 JDBC Driver 方案。
 3. 升级时重点回归分片算法 props 和 SQL 路由结果。
 

@@ -13,7 +13,7 @@ A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with 
 1. Fast ShardingSphere JDBC integration for Spring Boot 3/4 after the official starter was discontinued.
 2. Safer adoption in existing systems with conservative defaults (explicit enablement + DataSource back-off).
 3. Clear configuration path with practical examples for common sharding scenarios.
-4. Explicit compatibility scope: Spring Boot 3.x / 4.x with CI verification.
+4. Explicit compatibility scope: Spring Boot 3.x / 4.x.
 5. JDK 17+ runtime compatibility so it fits most existing production environments.
 
 ## Goals
@@ -24,10 +24,9 @@ A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with 
 
 ## Compatibility
 
-| starter | shardingsphere-jdbc | Spring Boot (Supported) | CI Verified |
-| --- | --- | --- | --- |
-| 1.0.4 | 5.5.2 | 3.x | 3.4.x |
-| 1.0.4 | 5.5.2 | 4.x | 4.0.x |
+| starter | shardingsphere-jdbc | Spring Boot (Supported) |
+| --- | --- | --- |
+| 1.1.0 | 5.5.3 | 3.x / 4.x |
 
 ## Quick Start
 
@@ -37,7 +36,7 @@ A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with 
 <dependency>
     <groupId>com.github.hsindumas</groupId>
     <artifactId>shardingsphere-jdbc-spring-boot-starter</artifactId>
-    <version>1.0.4</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -189,7 +188,7 @@ Wiki index (EN): [docs/wiki/README_EN.md](docs/wiki/README_EN.md)
 
 ## Upgrade Notes (5.5.x)
 
-1. This starter aligns to shardingsphere-jdbc 5.5.2; avoid adding conflicting shardingsphere-jdbc versions in your app.
+1. This starter aligns to shardingsphere-jdbc 5.5.3; avoid adding conflicting shardingsphere-jdbc versions in your app.
 2. Official Spring Boot Starter shape was removed since 5.3.0; use this starter or switch to the official JDBC Driver approach.
 3. During upgrades, re-validate sharding algorithm props and SQL routing behavior.
 

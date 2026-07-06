@@ -41,8 +41,8 @@ git checkout main
 git pull --ff-only origin main
 
 # 2) Create and push release tag
-git tag v1.0.4
-git push origin v1.0.4
+git tag v1.1.0
+git push origin v1.1.0
 ```
 
 ## CI Workflows

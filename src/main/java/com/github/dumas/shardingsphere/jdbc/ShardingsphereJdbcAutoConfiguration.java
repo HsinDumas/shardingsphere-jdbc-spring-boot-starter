@@ -77,8 +77,8 @@ public class ShardingsphereJdbcAutoConfiguration {
             shardingRuleConfig.getTables().add(tableRuleConfiguration);
         }
         return ShardingSphereDataSourceFactory.createDataSource(
-                new ModeConfiguration(
-                        "Standalone", new StandalonePersistRepositoryConfiguration("JDBC", new Properties())),
+            new ModeConfiguration(
+                "Standalone", new StandalonePersistRepositoryConfiguration("Memory", new Properties())),
                 dataSourceMap,
                 List.of(shardingRuleConfig),
                 shardingProperties.getProps());
