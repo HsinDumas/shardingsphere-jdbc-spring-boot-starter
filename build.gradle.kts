@@ -15,12 +15,8 @@ version = resolvedVersion.get()
 val springBootVersion = providers.gradleProperty("springBootVersion").get()
 val shardingsphereVersion = providers.gradleProperty("shardingsphereVersion").get()
 val springBootMajor = springBootVersion.substringBefore('.').toIntOrNull() ?: 3
-val currentJavaMajor = JavaVersion.current().majorVersion.toIntOrNull() ?: 17
-val javaToolchainVersion = if (springBootMajor >= 4) {
-    maxOf(21, currentJavaMajor)
-} else {
-    17
-}
+val javaToolchainVersion = 25
+val javaReleaseVersion = if (springBootMajor >= 4) 21 else 17
 
 java {
     toolchain {
@@ -58,6 +54,7 @@ dependencies {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
+    options.release.set(javaReleaseVersion)
 }
 
 tasks.test {

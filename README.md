@@ -145,6 +145,11 @@ shardingsphere:
 ./gradlew test
 ```
 
+构建策略：
+
+1. 统一使用 Java 25 toolchain 编译。
+2. 使用 `--release` 控制产物兼容级别：Boot 3 -> 17，Boot 4 -> 21。
+
 按 Spring Boot 版本验证：
 
 ```bash
