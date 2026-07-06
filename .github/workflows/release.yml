@@ -76,9 +76,10 @@ jobs:
           } > "$NOTES_FILE"
 
           {
-            echo "content<<EOF"
+            DELIM="NOTES_$(date +%s%N)"
+            echo "content<<${DELIM}"
             cat "$NOTES_FILE"
-            echo "EOF"
+            echo "${DELIM}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Publish and release artifacts to Maven Central
