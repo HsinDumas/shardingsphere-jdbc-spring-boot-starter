@@ -17,7 +17,7 @@
 ## Compatibility
 
 | starter | shardingsphere-jdbc | Spring Boot (Supported) | CI Verified |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | 1.0.4 | 5.5.2 | 3.x | 3.4.x |
 | 1.0.4 | 5.5.2 | 4.x | 4.0.x |
 
