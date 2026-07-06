@@ -10,11 +10,11 @@
 
 ## Why This Project
 
-1. 官方 Starter 停更后，提供可持续维护的 Spring Boot 接入方案。
-2. 默认保守策略：显式启用、自动让出已有 DataSource，降低存量系统接入风险。
-3. 同一份代码兼容 Spring Boot 3.x / 4.x，且有 CI 矩阵验证。
-4. 统一 JDK 25 toolchain 构建，产物兼容 JDK 17+。
-5. 发布流程标准化（tag 驱动 + Maven Central + 文档化 release 过程）。
+1. 官方 Starter 停更后，仍可在 Spring Boot 3/4 项目里快速接入 ShardingSphere JDBC。
+2. 默认保守策略（显式启用 + DataSource 自动让出），降低存量系统改造风险。
+3. 配置路径清晰，常见分库分表场景可直接参考示例上手。
+4. 支持范围明确：支持 Spring Boot 3.x / 4.x，并有 CI 验证。
+5. 产物兼容 JDK 17+，大多数现有运行环境可直接使用。
 
 这个项目的目标很明确：
 
