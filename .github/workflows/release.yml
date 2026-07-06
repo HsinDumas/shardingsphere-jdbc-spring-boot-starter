@@ -79,6 +79,7 @@ jobs:
             DELIM="NOTES_$(date +%s%N)"
             echo "content<<${DELIM}"
             cat "$NOTES_FILE"
+            echo
             echo "${DELIM}"
           } >> "$GITHUB_OUTPUT"
 
