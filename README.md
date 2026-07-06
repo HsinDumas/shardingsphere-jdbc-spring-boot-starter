@@ -40,6 +40,13 @@ shardingsphere:
 
 默认不抢占 `DataSource`。如果业务已定义 `DataSource` Bean，本 starter 会自动让出。
 
+这是一种保守策略：当容器中已存在业务侧普通 `DataSource` 时，本 starter 不会再创建分片 `DataSource`，因此分库分表能力不会由本 starter 接管。
+
+### 推荐用法
+
+1. 想让本 starter 自动接管分片：不要再额外定义普通 `DataSource` Bean。
+2. 想完全自定义 `DataSource`：请手动创建并注入 `ShardingSphereDataSource`，不要依赖本 starter 自动装配。
+
 ### 3) 最小分表示例
 
 ```yaml
