@@ -60,9 +60,9 @@ public class ShardingProperties {
         private String connectionTestQuery;
 
         /**
-         * Additional HikariCP-specific settings.
+         * Additional JDBC driver data source properties.
          */
-        private Properties hikari;
+        private Properties dataSourceProperties;
     }
 
     @Data

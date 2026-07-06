@@ -104,7 +104,7 @@ shardingsphere:
       idle-timeout: 60000
       min-idle: 5
       connection-test-query: SELECT 1
-      hikari:
+      data-source-properties:
         cachePrepStmts: true
         prepStmtCacheSize: 250
       ...

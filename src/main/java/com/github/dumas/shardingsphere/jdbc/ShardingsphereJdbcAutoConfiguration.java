@@ -41,7 +41,7 @@ public class ShardingsphereJdbcAutoConfiguration {
     }
 
     @Bean
-        @ConditionalOnMissingBean(DataSource.class)
+    @ConditionalOnMissingBean(DataSource.class)
     public DataSource dataSource() throws SQLException {
 
         Map<String, DataSource> dataSourceMap = new HashMap<>();
@@ -106,8 +106,8 @@ public class ShardingsphereJdbcAutoConfiguration {
             config.setConnectionTestQuery(configured.getConnectionTestQuery());
         }
 
-        if (configured.getHikari() != null) {
-            configured.getHikari().forEach((k, v) -> config.addDataSourceProperty(String.valueOf(k), v));
+        if (configured.getDataSourceProperties() != null) {
+            configured.getDataSourceProperties().forEach((k, v) -> config.addDataSourceProperty(String.valueOf(k), v));
         }
         return config;
     }
