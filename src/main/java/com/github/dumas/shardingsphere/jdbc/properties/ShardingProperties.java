@@ -1,6 +1,5 @@
 package com.github.dumas.shardingsphere.jdbc.properties;
 
-import com.zaxxer.hikari.HikariConfig;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,7 +25,7 @@ public class ShardingProperties {
     private boolean enabled;
 
     @NotEmpty
-    private List<HikariConfig> dataSources;
+    private List<@Valid DataSource> dataSources;
 
     @NotEmpty
     private List<@Valid Table> tables;
@@ -36,6 +35,34 @@ public class ShardingProperties {
     public enum AlgorithmType {
         INLINE,
         CLASS_BASED
+    }
+
+    @Data
+    public static class DataSource {
+        @NotBlank
+        private String jdbcUrl;
+
+        @NotBlank
+        private String username;
+
+        @NotBlank
+        private String password;
+
+        @NotBlank
+        private String driverClassName;
+
+        private Integer maxPoolSize;
+
+        private Long idleTimeout;
+
+        private Integer minIdle;
+
+        private String connectionTestQuery;
+
+        /**
+         * Additional HikariCP-specific settings.
+         */
+        private Properties hikari;
     }
 
     @Data

@@ -1,6 +1,7 @@
 package com.github.dumas.shardingsphere.jdbc;
 
 import com.github.dumas.shardingsphere.jdbc.properties.ShardingProperties;
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.shardingsphere.driver.api.ShardingSphereDataSourceFactory;
 import org.apache.shardingsphere.infra.algorithm.core.config.AlgorithmConfiguration;
@@ -45,9 +46,10 @@ public class ShardingsphereJdbcAutoConfiguration {
 
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         for (int i = 0; i < shardingProperties.getDataSources().size(); i++) {
+            ShardingProperties.DataSource configured = shardingProperties.getDataSources().get(i);
             dataSourceMap.put(
                     "ds_" + i,
-                    new HikariDataSource(shardingProperties.getDataSources().get(i)));
+                    new HikariDataSource(toHikariConfig(configured)));
         }
 
         ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
@@ -82,5 +84,31 @@ public class ShardingsphereJdbcAutoConfiguration {
                 dataSourceMap,
                 List.of(shardingRuleConfig),
                 shardingProperties.getProps());
+    }
+
+    private HikariConfig toHikariConfig(ShardingProperties.DataSource configured) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(configured.getJdbcUrl());
+        config.setUsername(configured.getUsername());
+        config.setPassword(configured.getPassword());
+        config.setDriverClassName(configured.getDriverClassName());
+
+        if (configured.getMaxPoolSize() != null) {
+            config.setMaximumPoolSize(configured.getMaxPoolSize());
+        }
+        if (configured.getIdleTimeout() != null) {
+            config.setIdleTimeout(configured.getIdleTimeout());
+        }
+        if (configured.getMinIdle() != null) {
+            config.setMinimumIdle(configured.getMinIdle());
+        }
+        if (configured.getConnectionTestQuery() != null) {
+            config.setConnectionTestQuery(configured.getConnectionTestQuery());
+        }
+
+        if (configured.getHikari() != null) {
+            configured.getHikari().forEach((k, v) -> config.addDataSourceProperty(String.valueOf(k), v));
+        }
+        return config;
     }
 }
