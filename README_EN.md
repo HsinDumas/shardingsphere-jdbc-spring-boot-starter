@@ -26,6 +26,7 @@ A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with 
 
 | starter | shardingsphere-jdbc | Spring Boot (Supported) |
 | --- | --- | --- |
+| 1.0.4 | 5.5.2 | 3.x / 4.x (Legacy) |
 | 1.1.0 | 5.5.3 | 3.x / 4.x |
 
 ## Quick Start
