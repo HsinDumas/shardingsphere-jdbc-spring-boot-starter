@@ -1,0 +1,170 @@
+name: Release Publish (Central Tag)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: ${{ github.repository == 'HsinDumas/shardingsphere-jdbc-spring-boot-starter' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Resolve release version
+        id: release_version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid tag version: $VERSION"
+            exit 1
+          fi
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if version already exists on Maven Central
+        shell: bash
+        run: |
+          VERSION="${{ steps.release_version.outputs.value }}"
+          POM_URL="https://repo1.maven.org/maven2/com/github/hsindumas/shardingsphere-jdbc-spring-boot-starter/${VERSION}/shardingsphere-jdbc-spring-boot-starter-${VERSION}.pom"
+          if curl -fsI "$POM_URL" >/dev/null; then
+            echo "Version already exists on Maven Central: $VERSION"
+            exit 1
+          fi
+
+      - name: Build conventional release notes
+        id: release_notes
+        shell: bash
+        env:
+          CURRENT_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force
+          PREV_TAG="$(git tag --sort=-v:refname | grep -v "^${CURRENT_TAG}$" | head -n 1 || true)"
+          if [[ -n "$PREV_TAG" ]]; then
+            RANGE="${PREV_TAG}..${CURRENT_TAG}"
+          else
+            RANGE="$CURRENT_TAG"
+          fi
+
+          NOTES_FILE="$(mktemp)"
+          {
+            echo "## Changes"
+            echo ""
+            if [[ -n "$PREV_TAG" ]]; then
+              echo "- Compared Range: ${PREV_TAG}..${CURRENT_TAG}"
+            else
+              echo "- Compared Range: ${CURRENT_TAG}"
+            fi
+            echo ""
+            git log "$RANGE" --pretty=format:'- %h %s'
+          } > "$NOTES_FILE"
+
+          {
+            echo "content<<EOF"
+            cat "$NOTES_FILE"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish and release artifacts to Maven Central
+        id: publish_central
+        shell: bash
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          SIGNING_IN_MEMORY_KEY: ${{ secrets.SIGNING_IN_MEMORY_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_IN_MEMORY_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          SANITIZED_KEY="${SIGNING_IN_MEMORY_KEY//$'\\r'/}"
+          SANITIZED_KEY="${SANITIZED_KEY//\\n/$'\n'}"
+
+          if [[ "$SANITIZED_KEY" != *"BEGIN PGP PRIVATE KEY BLOCK"* ]]; then
+            DECODED_KEY="$(printf '%s' "$SANITIZED_KEY" | base64 -d 2>/dev/null || true)"
+            if [[ "$DECODED_KEY" == *"BEGIN PGP PRIVATE KEY BLOCK"* ]]; then
+              SANITIZED_KEY="$DECODED_KEY"
+            fi
+          fi
+
+          SANITIZED_KEY="$(printf '%s\n' "$SANITIZED_KEY" | sed '/^=/d')"
+          export ORG_GRADLE_PROJECT_signingInMemoryKey="$SANITIZED_KEY"
+
+          LOG_FILE="$(mktemp)"
+          ./gradlew --no-daemon -PreleaseVersion=${{ steps.release_version.outputs.value }} publishReleaseToMavenCentral | tee "$LOG_FILE"
+
+          DEPLOYMENT_ID="$(grep -Eo 'deployment id: [0-9a-fA-F-]+' "$LOG_FILE" | tail -n 1 | awk '{print $3}' || true)"
+          echo "deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Write release summary
+        shell: bash
+        run: |
+          {
+            echo "## Release Summary"
+            echo ""
+            echo "- Tag: ${{ github.ref_name }}"
+            echo "- Version: ${{ steps.release_version.outputs.value }}"
+            if [[ -n "${{ steps.publish_central.outputs.deployment_id }}" ]]; then
+              echo "- Maven Central Deployment ID: ${{ steps.publish_central.outputs.deployment_id }}"
+            else
+              echo "- Maven Central Deployment ID: not detected from Gradle output"
+            fi
+            echo "- Workflow Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ steps.release_version.outputs.value }}
+          generate_release_notes: true
+          append_body: true
+          body: |
+            ${{ steps.release_notes.outputs.content }}
+
+            ## Publish metadata
+            - Maven Central Deployment ID: ${{ steps.publish_central.outputs.deployment_id || 'N/A' }}
+            - Workflow Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Bump fallback version to next snapshot on main
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release_version.outputs.value }}
+        run: |
+          set -euo pipefail
+
+          IFS='.' read -r major minor patch <<< "$RELEASE_VERSION"
+          NEXT_PATCH=$((patch + 1))
+          NEXT_VERSION="${major}.${minor}.${NEXT_PATCH}-SNAPSHOT"
+
+          git checkout main
+          git pull --ff-only origin main
+
+          sed -i.bak -E "s/^projectVersion=.*/projectVersion=${NEXT_VERSION}/" gradle.properties
+          rm -f gradle.properties.bak
+
+          if git diff --quiet -- gradle.properties; then
+            echo "No snapshot bump needed"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gradle.properties
+          git commit -m "chore(release): bump fallback version to ${NEXT_VERSION}"
+          git push origin HEAD:main
