@@ -9,6 +9,7 @@
 1. [Quick Start](quick-start.md)
 2. [Configuration Examples](configuration.md)
 3. [Release Guide](../release.md)
+4. [English Index](README_EN.md)
 
 ## 关键设计约定
 
