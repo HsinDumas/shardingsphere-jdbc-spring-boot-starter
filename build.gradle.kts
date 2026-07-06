@@ -33,9 +33,10 @@ repositories {
 dependencies {
     api("org.apache.shardingsphere:shardingsphere-jdbc:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-sharding-core:$shardingsphereVersion")
+    implementation("org.apache.shardingsphere:shardingsphere-authority-simple:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-standalone-mode-core:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-standalone-mode-repository-api:$shardingsphereVersion")
-    implementation("org.apache.shardingsphere:shardingsphere-standalone-mode-repository-memory:$shardingsphereVersion")
+    implementation("org.apache.shardingsphere:shardingsphere-standalone-mode-repository-jdbc:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-infra-data-source-pool-hikari:$shardingsphereVersion")
     implementation("com.zaxxer:HikariCP")
 

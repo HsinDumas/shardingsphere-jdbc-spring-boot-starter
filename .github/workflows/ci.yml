@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - spring-boot-version: '3.4.8'
-          - spring-boot-version: '4.0.0'
+          - spring-boot-version: '3.5.16'
+          - spring-boot-version: '4.1.0'
 
     steps:
       - uses: actions/checkout@v5

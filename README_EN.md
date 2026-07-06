@@ -170,10 +170,10 @@ Per-version verification:
 
 ```bash
 # Boot 3
-./gradlew clean test -PspringBootVersion=3.4.8
+./gradlew clean test -PspringBootVersion=3.5.16
 
 # Boot 4
-./gradlew clean test -PspringBootVersion=4.0.0
+./gradlew clean test -PspringBootVersion=4.1.0
 ```
 
 ## Release
