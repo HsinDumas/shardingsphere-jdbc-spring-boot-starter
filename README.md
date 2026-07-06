@@ -177,6 +177,8 @@ shardingsphere:
 
 Wiki 索引请见 [docs/wiki/README.md](docs/wiki/README.md)。
 
+Wiki English index: [docs/wiki/README_EN.md](docs/wiki/README_EN.md).
+
 ## Upgrade Notes (5.5.x)
 
 1. 当前 starter 内置对齐 `shardingsphere-jdbc` 5.5.2，建议避免业务侧重复引入不同版本。

@@ -175,7 +175,9 @@ Release is tag-driven via Gradle + GitHub Actions.
 
 See [docs/release.md](docs/release.md) for full release steps.
 
-See [docs/wiki/README.md](docs/wiki/README.md) for wiki index.
+Wiki index (CN): [docs/wiki/README.md](docs/wiki/README.md)
+
+Wiki index (EN): [docs/wiki/README_EN.md](docs/wiki/README_EN.md)
 
 ## Upgrade Notes (5.5.x)
 
