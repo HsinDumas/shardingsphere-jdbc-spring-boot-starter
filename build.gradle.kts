@@ -138,6 +138,10 @@ mavenPublishing {
     }
 }
 
+tasks.matching { it.name == "generateMetadataFileForMavenPublication" }.configureEach {
+    dependsOn("plainJavadocJar")
+}
+
 tasks.register("printVersion") {
     group = "help"
     description = "Prints the current project version"
