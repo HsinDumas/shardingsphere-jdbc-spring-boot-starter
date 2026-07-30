@@ -22,6 +22,7 @@
 | --- | --- | --- |
 | 1.0.4 | 5.5.2 | 3.x / 4.x (Legacy) |
 | 1.1.0 | 5.5.3 | 3.x / 4.x |
+| 1.1.1 | 5.5.3 | 3.x / 4.x |
 
 ## Quick Start
 
@@ -31,7 +32,7 @@
 <dependency>
     <groupId>com.github.hsindumas</groupId>
     <artifactId>shardingsphere-jdbc-spring-boot-starter</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 
 <!-- 应用侧需要显式提供 JDBC 运行时依赖 -->
@@ -89,6 +90,20 @@ shardingsphere:
         props:
           algorithm-expression: t_order_${order_id % 2}
 ```
+
+### 普通表自动发现
+
+从 1.1.1 开始，starter 使用 ShardingSphere 原生 Single Rule 自动发现已有普通表。`shardingsphere.tables` 只需要配置真正参与分库或分表的逻辑表；普通表无需再写单节点规则。
+
+例如物理表 `customer_profile` 已存在时，不需要添加以下配置：
+
+```yaml
+# 不再需要
+# - logic-table: customer_profile
+#   actual-data-nodes: ds_0.customer_profile
+```
+
+注意：普通表必须在 starter 初始化前已存在于 `jdbc-url` 指向的数据库中，ShardingSphere 才能加载其元数据。当前版本内置 MySQL SQL parser；应用侧仍需自行提供 MySQL JDBC 驱动。
 
 ## Configuration Examples
 
@@ -170,9 +185,9 @@ shardingsphere:
 
 构建策略：
 
-1. 统一使用 Java 25 toolchain 编译。
+1. 统一使用 Java 21 toolchain 编译。
 2. 统一使用 `--release 17`，保证产物可运行在 JDK 17 及以上。
-3. 本地构建建议使用 JDK 25（或启用 Gradle toolchain 自动下载），运行时最低为 JDK 17。
+3. 本地构建建议使用 JDK 21（或启用 Gradle toolchain 自动下载），运行时最低为 JDK 17。
 
 按 Spring Boot 版本验证：
 
@@ -188,7 +203,7 @@ shardingsphere:
 
 项目使用 Gradle + GitHub Actions 的 tag 驱动发布。
 
-完整发布流程请见 [docs/release.md](docs/release.md)。
+完整发布流程请见 [docs/release.md](docs/release.md)，版本变更请见 [CHANGELOG.md](CHANGELOG.md)。
 
 Wiki 索引请见 [docs/wiki/README.md](docs/wiki/README.md)。
 
@@ -197,8 +212,10 @@ Wiki English index: [docs/wiki/README_EN.md](docs/wiki/README_EN.md).
 ## Upgrade Notes (5.5.x)
 
 1. 当前 starter 内置对齐 `shardingsphere-jdbc` 5.5.3，建议避免业务侧重复引入不同版本。
-2. 官方 5.3.0+ 已移除 Spring Boot Starter 形态，可继续使用本 starter，或改走官方 JDBC Driver 方案。
-3. 升级时重点回归分片算法 props 和 SQL 路由结果。
+2. 1.1.1 起内置 MySQL parser engine，修复运行时 `DialectSQLParserFacade` SPI 缺失。
+3. 1.1.1 起自动发现普通表；`shardingsphere.tables` 仅配置真正的分片表。
+4. 官方 5.3.0+ 已移除 Spring Boot Starter 形态，可继续使用本 starter，或改走官方 JDBC Driver 方案。
+5. 升级时重点回归分片算法 props 和 SQL 路由结果。
 
 ## Contributing
 

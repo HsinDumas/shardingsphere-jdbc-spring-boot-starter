@@ -9,6 +9,7 @@ import org.apache.shardingsphere.mode.repository.standalone.StandalonePersistRep
 import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardShardingStrategyConfiguration;
+import org.apache.shardingsphere.single.config.SingleRuleConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -80,7 +81,7 @@ public class ShardingsphereJdbcAutoConfiguration {
             new ModeConfiguration(
                 "Standalone", new StandalonePersistRepositoryConfiguration("JDBC", new Properties())),
                 dataSourceMap,
-                List.of(shardingRuleConfig),
+                List.of(shardingRuleConfig, new SingleRuleConfiguration(List.of("*.*"), null)),
                 shardingProperties.getProps());
     }
 }

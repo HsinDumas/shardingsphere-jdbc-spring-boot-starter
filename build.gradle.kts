@@ -14,7 +14,7 @@ version = resolvedVersion.get()
 
 val springBootVersion = providers.gradleProperty("springBootVersion").get()
 val shardingsphereVersion = providers.gradleProperty("shardingsphereVersion").get()
-val javaToolchainVersion = 25
+val javaToolchainVersion = 21
 val javaReleaseVersion = 17
 
 java {
@@ -31,6 +31,7 @@ repositories {
 dependencies {
     api("org.apache.shardingsphere:shardingsphere-jdbc:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-sharding-core:$shardingsphereVersion")
+    implementation("org.apache.shardingsphere:shardingsphere-parser-sql-engine-mysql:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-authority-simple:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-standalone-mode-core:$shardingsphereVersion")
     implementation("org.apache.shardingsphere:shardingsphere-standalone-mode-repository-api:$shardingsphereVersion")

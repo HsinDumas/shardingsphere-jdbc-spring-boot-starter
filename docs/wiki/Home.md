@@ -15,7 +15,7 @@
 
 1. 默认保守策略：只有在容器里不存在业务侧 `DataSource` Bean 时，starter 才会自动创建分片数据源。
 2. 显式启用：请设置 `shardingsphere.enabled=true`。
-3. 构建统一：使用 JDK 25 toolchain 构建，产物目标兼容 JDK 17+。
+3. 构建统一：使用 JDK 21 toolchain 构建，产物目标兼容 JDK 17+。
 
 ## 适用场景
 

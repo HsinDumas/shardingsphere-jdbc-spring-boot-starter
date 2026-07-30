@@ -7,6 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,6 +31,40 @@ class ShardingsphereJdbcAutoConfigurationTest {
                 .run(context -> {
                     assertThat(context).hasSingleBean(DataSource.class);
                     assertThat(context).hasBean("dataSource");
+                });
+    }
+
+    @Test
+    void shouldPrepareStatementWithMysqlParser() {
+        contextRunner
+                .withPropertyValues(commonShardingProperties())
+                .run(context -> {
+                    DataSource dataSource = context.getBean(DataSource.class);
+                    try (Connection connection = dataSource.getConnection();
+                            PreparedStatement ignored = connection.prepareStatement("SELECT 1")) {
+                        assertThat(connection.isClosed()).isFalse();
+                    }
+                });
+    }
+
+    @Test
+    void shouldRouteUnconfiguredTableWithSingleRule() throws Exception {
+        String jdbcUrl = "jdbc:h2:mem:plain_table;MODE=MySQL;DB_CLOSE_DELAY=-1;USER=sa;PASSWORD=sa";
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "sa");
+                Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE plain_table (id BIGINT PRIMARY KEY)");
+        }
+
+        contextRunner
+                .withPropertyValues(commonShardingProperties())
+                .withPropertyValues("shardingsphere.data-sources[0].jdbc-url=" + jdbcUrl)
+                .run(context -> {
+                    DataSource dataSource = context.getBean(DataSource.class);
+                    try (Connection connection = dataSource.getConnection();
+                            PreparedStatement statement = connection.prepareStatement("INSERT INTO plain_table (id) VALUES (?)")) {
+                        statement.setLong(1, 1L);
+                        assertThat(statement.executeUpdate()).isEqualTo(1);
+                    }
                 });
     }
 

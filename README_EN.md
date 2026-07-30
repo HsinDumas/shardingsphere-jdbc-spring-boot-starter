@@ -28,6 +28,7 @@ A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with 
 | --- | --- | --- |
 | 1.0.4 | 5.5.2 | 3.x / 4.x (Legacy) |
 | 1.1.0 | 5.5.3 | 3.x / 4.x |
+| 1.1.1 | 5.5.3 | 3.x / 4.x |
 
 ## Quick Start
 
@@ -37,7 +38,7 @@ A Spring Boot friendly starter for ShardingSphere JDBC on Spring Boot 3/4, with 
 <dependency>
     <groupId>com.github.hsindumas</groupId>
     <artifactId>shardingsphere-jdbc-spring-boot-starter</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 
 <!-- Application-side JDBC runtime dependencies -->
@@ -95,6 +96,20 @@ shardingsphere:
         props:
           algorithm-expression: t_order_${order_id % 2}
 ```
+
+### Automatic Single-Table Discovery
+
+Starting with 1.1.1, the starter uses ShardingSphere's native Single Rule to discover existing ordinary tables. Keep `shardingsphere.tables` only for logical tables that actually require database or table sharding; ordinary tables no longer need explicit single-node rules.
+
+If the physical table `customer_profile` already exists, do not add this configuration:
+
+```yaml
+# No longer required
+# - logic-table: customer_profile
+#   actual-data-nodes: ds_0.customer_profile
+```
+
+The physical table must exist in the database referenced by `jdbc-url` before the starter initializes so ShardingSphere can load its metadata. This version bundles the MySQL SQL parser; applications must still provide the MySQL JDBC driver.
 
 ## Configuration Examples
 
@@ -176,9 +191,9 @@ shardingsphere:
 
 Build strategy:
 
-1. Build with Java 25 toolchain.
+1. Build with Java 21 toolchain.
 2. Use --release 17 so artifacts run on JDK 17+.
-3. For local builds, use JDK 25 (or enable Gradle toolchain auto-download). Runtime baseline is JDK 17+.
+3. For local builds, use JDK 21 (or enable Gradle toolchain auto-download). Runtime baseline is JDK 17+.
 
 Per-version verification:
 
@@ -194,7 +209,7 @@ Per-version verification:
 
 Release is tag-driven via Gradle + GitHub Actions.
 
-See [docs/release.md](docs/release.md) for full release steps.
+See [docs/release.md](docs/release.md) for full release steps and [CHANGELOG.md](CHANGELOG.md) for version history.
 
 Wiki index (CN): [docs/wiki/README.md](docs/wiki/README.md)
 
@@ -203,8 +218,10 @@ Wiki index (EN): [docs/wiki/README_EN.md](docs/wiki/README_EN.md)
 ## Upgrade Notes (5.5.x)
 
 1. This starter aligns to shardingsphere-jdbc 5.5.3; avoid adding conflicting shardingsphere-jdbc versions in your app.
-2. Official Spring Boot Starter shape was removed since 5.3.0; use this starter or switch to the official JDBC Driver approach.
-3. During upgrades, re-validate sharding algorithm props and SQL routing behavior.
+2. Starting with 1.1.1, the MySQL parser engine is bundled to prevent runtime `DialectSQLParserFacade` SPI failures.
+3. Starting with 1.1.1, ordinary tables are auto-discovered; keep `shardingsphere.tables` for actual sharding rules only.
+4. Official Spring Boot Starter shape was removed since 5.3.0; use this starter or switch to the official JDBC Driver approach.
+5. During upgrades, re-validate sharding algorithm props and SQL routing behavior.
 
 ## Contributing
 
