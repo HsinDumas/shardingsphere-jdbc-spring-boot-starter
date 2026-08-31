@@ -1,3 +1,8 @@
+import java.security.MessageDigest
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.component.ModuleComponentSelector
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
+
 plugins {
     `java-library`
     id("com.vanniktech.maven.publish") version "0.37.0"
@@ -63,6 +68,129 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+val routecontractPilotEnabled = providers.gradleProperty("routecontractPilot").orNull == "true"
+if (routecontractPilotEnabled) {
+    val releaseBaseUrl = providers.gradleProperty("routecontractReleaseBaseUrl")
+        .orElse("https://github.com/ym0506/routecontract/releases/download/v0.1.2")
+        .get()
+    val officialReleaseBaseUrl = "https://github.com/ym0506/routecontract/releases/download/v0.1.2"
+    val allowTestUrlOverride = providers.gradleProperty("routecontractTestAllowUrlOverride").orNull == "true"
+    require(releaseBaseUrl == officialReleaseBaseUrl || allowTestUrlOverride) {
+        "routecontractReleaseBaseUrl must be the immutable v0.1.2 GitHub Release URL"
+    }
+    val officialSha256 = "d25cd2699629890db7195e871461b25861991fe20abd776d702c690a292b72fc"
+    val suppliedSha256 = providers.gradleProperty("routecontractExpectedSha256").orNull
+    val allowTestShaOverride = providers.gradleProperty("routecontractTestAllowShaOverride").orNull == "true"
+    require(suppliedSha256 == null || suppliedSha256 == officialSha256 || allowTestShaOverride) {
+        "routecontractExpectedSha256 override is test-only; immutable v0.1.2 SHA is fixed"
+    }
+    val expectedSha256 = suppliedSha256 ?: officialSha256
+
+    repositories {
+        exclusiveContent {
+            forRepository {
+                ivy {
+                    name = "routecontractV012ImmutableRelease"
+                    url = uri(releaseBaseUrl)
+                    patternLayout { artifact("[artifact]-[revision].[ext]") }
+                    metadataSources { artifact() }
+                }
+            }
+            filter { includeModule("io.github.ym0506.routecontract", "routecontract-shardingsphere-5.5") }
+        }
+    }
+
+    val routeContractPilot by sourceSets.creating {
+        java.srcDir("src/routeContractPilot/java")
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+    }
+    configurations[routeContractPilot.implementationConfigurationName]
+        .extendsFrom(configurations.testImplementation.get())
+    configurations[routeContractPilot.runtimeOnlyConfigurationName]
+        .extendsFrom(configurations.testRuntimeOnly.get())
+    dependencies {
+        add(routeContractPilot.implementationConfigurationName,
+            "io.github.ym0506.routecontract:routecontract-shardingsphere-5.5:0.1.2@jar") {
+            isTransitive = false
+        }
+        add(routeContractPilot.runtimeOnlyConfigurationName, "com.alibaba:transmittable-thread-local") {
+            version { strictly("2.14.2") }
+        }
+        add(routeContractPilot.runtimeOnlyConfigurationName, "tools.jackson.core:jackson-core") {
+            version { strictly("3.1.5") }
+        }
+    }
+
+    val verifyRoutecontractArtifact by tasks.registering {
+        val pilotConfiguration = configurations[routeContractPilot.runtimeClasspathConfigurationName]
+        inputs.files(pilotConfiguration)
+        doLast {
+            val edge = pilotConfiguration.incoming.resolutionResult.root.dependencies
+                .filterIsInstance<ResolvedDependencyResult>()
+                .single { dependency ->
+                    val requested = dependency.requested
+                    requested is ModuleComponentSelector
+                            && requested.group == "io.github.ym0506.routecontract"
+                }
+            val requested = edge.requested as ModuleComponentSelector
+            check(requested.module == "routecontract-shardingsphere-5.5" && requested.version == "0.1.2") {
+                "Requested RouteContract selector changed: $requested"
+            }
+            val selected = edge.selected.id as? ModuleComponentIdentifier
+                ?: error("Selected RouteContract component is not a module: ${edge.selected.id}")
+            check(selected.group == requested.group && selected.module == requested.module && selected.version == requested.version) {
+                "Requested-to-selected RouteContract edge changed: requested=$requested selected=$selected"
+            }
+            val artifacts = pilotConfiguration.resolvedConfiguration.resolvedArtifacts.filter {
+                it.moduleVersion.id.group == "io.github.ym0506.routecontract"
+            }
+            check(artifacts.size == 1) { "Expected one RouteContract artifact, found $artifacts" }
+            val artifact = artifacts.single()
+            check(artifact.id.componentIdentifier == selected) {
+                "RouteContract artifact is not bound to the selected component"
+            }
+            check(artifact.file.name == "routecontract-shardingsphere-5.5-0.1.2.jar") {
+                "Unexpected RouteContract artifact: ${artifact.file.name}"
+            }
+            val actualSha = MessageDigest.getInstance("SHA-256")
+                .digest(artifact.file.readBytes()).joinToString("") { "%02x".format(it) }
+            check(actualSha == expectedSha256) {
+                "RouteContract JAR SHA-256 mismatch: expected=$expectedSha256 actual=$actualSha"
+            }
+            fun requireExactRuntimeComponent(group: String, module: String, version: String) {
+                val components = pilotConfiguration.incoming.resolutionResult.allComponents.mapNotNull {
+                    it.id as? ModuleComponentIdentifier
+                }.filter { it.group == group && it.module == module }
+                check(components.size == 1 && components.single().version == version) {
+                    "Runtime component changed: expected=$group:$module:$version selected=$components"
+                }
+                check(pilotConfiguration.resolvedConfiguration.resolvedArtifacts.any {
+                    it.id.componentIdentifier == components.single()
+                }) { "No artifact is bound to runtime component ${components.single()}" }
+            }
+            requireExactRuntimeComponent("com.alibaba", "transmittable-thread-local", "2.14.2")
+            requireExactRuntimeComponent("tools.jackson.core", "jackson-core", "3.1.5")
+            project.extensions.extraProperties["routecontractVerifiedJar"] = artifact.file.absolutePath
+            println("ROUTECONTRACT_VERIFIED requested=$requested selected=$selected sha256=$actualSha file=${artifact.file}")
+        }
+    }
+    tasks.named<JavaCompile>(routeContractPilot.compileJavaTaskName) {
+        dependsOn(verifyRoutecontractArtifact)
+        javaCompiler.set(javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(17)) })
+        options.release.set(17)
+    }
+    tasks.register<Test>("routeContractPilotTest") {
+        dependsOn(verifyRoutecontractArtifact, routeContractPilot.classesTaskName)
+        testClassesDirs = routeContractPilot.output.classesDirs
+        classpath = routeContractPilot.runtimeClasspath
+        javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(17)) })
+        useJUnitPlatform()
+        systemProperty("routecontract.projectDir", layout.projectDirectory.asFile.absolutePath)
+        systemProperty("routecontract.expectedSha256", expectedSha256)
+    }
 }
 
 fun Project.enforceTagDrivenRelease() {

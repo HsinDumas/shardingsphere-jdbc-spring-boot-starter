@@ -1,0 +1,76 @@
+name: RouteContract pilot review gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "build.gradle*"
+      - "buildSrc/**"
+      - "gradle.properties"
+      - "settings.gradle*"
+      - "gradlew"
+      - "gradlew.bat"
+      - "gradle/**"
+      - "src/main/**"
+      - "src/test/**"
+      - "src/routeContractPilot/**"
+      - "scripts/verify-routecontract-pilot-review-state.sh"
+      - ".github/workflows/routecontract-pilot.yml"
+  pull_request:
+    paths:
+      - "build.gradle*"
+      - "buildSrc/**"
+      - "gradle.properties"
+      - "settings.gradle*"
+      - "gradlew"
+      - "gradlew.bat"
+      - "gradle/**"
+      - "src/main/**"
+      - "src/test/**"
+      - "src/routeContractPilot/**"
+      - "scripts/verify-routecontract-pilot-review-state.sh"
+      - ".github/workflows/routecontract-pilot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  h2-plain-table-contract:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        spring-boot: ["3.5.16", "4.1.0"]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - id: verify
+        name: Verify immutable artifact and exact review state
+        env:
+          SPRING_BOOT_VERSION: ${{ matrix.spring-boot }}
+          ROUTECONTRACT_TEMP_ROOT: ${{ runner.temp }}
+        run: ./scripts/verify-routecontract-pilot-review-state.sh "$SPRING_BOOT_VERSION"
+      - name: Upload minimized unapproved REVIEW candidate
+        if: steps.verify.outputs.mode == 'review' && steps.verify.outputs.artifact_ready == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: routecontract-plain-table-review-${{ steps.verify.outputs.candidate_sha256 }}-spring-boot-${{ matrix.spring-boot }}
+          path: build/routecontract/plain-table.insert.candidate.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Require a human-approved baseline
+        if: steps.verify.outputs.mode == 'review' && steps.verify.outputs.artifact_ready == 'true'
+        run: |
+          echo "Validated REVIEW candidate was uploaded, but no human-approved baseline exists." >&2
+          echo "Review the exact candidate bytes; only a subsequent MATCH state is a qualifying check." >&2
+          exit 1
