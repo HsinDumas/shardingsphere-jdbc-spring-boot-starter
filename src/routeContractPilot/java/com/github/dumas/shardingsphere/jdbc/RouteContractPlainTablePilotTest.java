@@ -19,11 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.net.JarURLConnection;
 import java.security.MessageDigest;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Map;
 import java.util.ServiceLoader;
 import org.apache.shardingsphere.infra.executor.sql.hook.SQLExecutionHook;
@@ -33,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class RouteContractPlainTablePilotTest {
     private static final String JDBC_URL =
-            "jdbc:h2:mem:routecontract_plain_table;MODE=MySQL;DB_CLOSE_DELAY=-1;USER=sa;PASSWORD=sa";
+            PlainTableTestSupport.jdbcUrl("routecontract_plain_table");
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(ShardingsphereJdbcAutoConfiguration.class));
 
@@ -66,29 +61,14 @@ class RouteContractPlainTablePilotTest {
         });
         String preOperationSha = sha256(loadedJar);
 
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, "sa", "sa");
-                Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE plain_table (id BIGINT PRIMARY KEY)");
-        }
-        contextRunner.withPropertyValues(commonShardingProperties())
-                .withPropertyValues("shardingsphere.data-sources[0].jdbc-url=" + JDBC_URL)
+        PlainTableTestSupport.createPlainTable(JDBC_URL);
+        contextRunner.withPropertyValues(PlainTableTestSupport.commonShardingProperties(JDBC_URL))
                 .run(context -> {
                     DataSource dataSource = context.getBean(DataSource.class);
-                    CapturedResult<Integer> captured = RouteContract.captureResult("plain-table.insert", () -> {
-                        try (Connection connection = dataSource.getConnection();
-                                PreparedStatement statement = connection.prepareStatement(
-                                        "INSERT INTO plain_table (id) VALUES (?)")) {
-                            statement.setLong(1, 1L);
-                            return statement.executeUpdate();
-                        }
-                    });
+                    CapturedResult<Integer> captured = RouteContract.captureResult(
+                            "plain-table.insert", () -> PlainTableTestSupport.insertPlainTableRow(dataSource, 1L));
                     assertThat(captured.value()).isEqualTo(1);
-                    try (Connection connection = DriverManager.getConnection(JDBC_URL, "sa", "sa");
-                            Statement statement = connection.createStatement();
-                            ResultSet result = statement.executeQuery("SELECT COUNT(*) FROM plain_table")) {
-                        assertThat(result.next()).isTrue();
-                        assertThat(result.getInt(1)).isEqualTo(1);
-                    }
+                    assertThat(PlainTableTestSupport.countPlainTableRows(JDBC_URL)).isEqualTo(1);
                     RouteSnapshot snapshot = captured.snapshot();
                     assertThat(sha256(loadedJar)).isEqualTo(preOperationSha)
                             .isEqualTo(System.getProperty("routecontract.expectedSha256"));
@@ -116,16 +96,4 @@ class RouteContractPlainTablePilotTest {
                 MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)));
     }
 
-    private static String[] commonShardingProperties() {
-        return new String[] {
-                "shardingsphere.enabled=true", "shardingsphere.data-sources[0].jdbc-url=" + JDBC_URL,
-                "shardingsphere.data-sources[0].username=sa", "shardingsphere.data-sources[0].password=sa",
-                "shardingsphere.data-sources[0].driver-class-name=org.h2.Driver",
-                "shardingsphere.tables[0].logic-table=t_order",
-                "shardingsphere.tables[0].actual-data-nodes=ds_${0..0}.t_order_${0..1}",
-                "shardingsphere.tables[0].table-strategy.algorithm-type=inline",
-                "shardingsphere.tables[0].table-strategy.sharding-column=order_id",
-                "shardingsphere.tables[0].table-strategy.props.algorithm-expression=t_order_${order_id % 2}"
-        };
-    }
 }

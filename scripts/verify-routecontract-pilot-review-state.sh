@@ -33,16 +33,22 @@ else
 fi
 
 set +e
-./gradlew --no-daemon routeContractPilotTest -PspringBootVersion="$boot_version" -ProutecontractPilot=true
+./gradlew --no-daemon --dependency-verification=strict routeContractPilotTest \
+  -PspringBootVersion="$boot_version" -ProutecontractPilot=true
 gradle_rc=$?
 set -e
 [[ -f "$candidate" && ! -L "$candidate" ]] || die "candidate is missing, nonregular, or a symlink"
-mapfile -t reports < <(find "$report_dir" -maxdepth 1 -type f -name 'TEST-*.xml' -print)
-[[ ${#reports[@]} -eq 1 ]] || die "expected exactly one JUnit XML, found ${#reports[@]}"
+report_count=0
+report=""
+while IFS= read -r -d '' found_report; do
+  report_count=$((report_count + 1))
+  report="$found_report"
+done < <(find "$report_dir" -maxdepth 1 -type f -name 'TEST-*.xml' -print0)
+[[ "$report_count" -eq 1 ]] || die "expected exactly one JUnit XML, found $report_count"
 expected_report="$report_dir/TEST-com.github.dumas.shardingsphere.jdbc.RouteContractPlainTablePilotTest.xml"
-[[ "${reports[0]}" == "$expected_report" ]] || die "unexpected JUnit XML: ${reports[0]}"
+[[ "$report" == "$expected_report" ]] || die "unexpected JUnit XML: $report"
 
-if ! python3 - "$mode" "$gradle_rc" "${reports[0]}" <<'PY'
+if ! python3 - "$mode" "$gradle_rc" "$report" <<'PY'
 import sys
 import xml.etree.ElementTree as ET
 mode, rc_text, report = sys.argv[1:]
@@ -85,7 +91,7 @@ then
 fi
 candidate_sha=$(file_sha "$candidate") || die "could not hash candidate after report verification"
 [[ "$candidate_sha" =~ ^[0-9a-f]{64}$ ]] || die "candidate SHA-256 is not fixed lowercase hex"
-report_sha=$(file_sha "${reports[0]}") || die "could not hash verified JUnit report"
+report_sha=$(file_sha "$report") || die "could not hash verified JUnit report"
 [[ "$report_sha" =~ ^[0-9a-f]{64}$ ]] || die "JUnit report SHA-256 is not fixed lowercase hex"
 
 if [[ "$mode" == review ]]; then

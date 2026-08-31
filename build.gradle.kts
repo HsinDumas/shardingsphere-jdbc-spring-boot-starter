@@ -1,6 +1,7 @@
 import java.security.MessageDigest
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentSelector
+import org.gradle.api.artifacts.dsl.LockMode
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
 plugins {
@@ -21,6 +22,7 @@ val springBootVersion = providers.gradleProperty("springBootVersion").get()
 val shardingsphereVersion = providers.gradleProperty("shardingsphereVersion").get()
 val javaToolchainVersion = 21
 val javaReleaseVersion = 17
+val routecontractPilotEnabled = providers.gradleProperty("routecontractPilot").orNull == "true"
 
 java {
     toolchain {
@@ -29,7 +31,9 @@ java {
 }
 
 repositories {
-    mavenLocal()
+    if (!routecontractPilotEnabled) {
+        mavenLocal()
+    }
     mavenCentral()
 }
 
@@ -70,7 +74,6 @@ tasks.test {
     useJUnitPlatform()
 }
 
-val routecontractPilotEnabled = providers.gradleProperty("routecontractPilot").orNull == "true"
 if (routecontractPilotEnabled) {
     val releaseBaseUrl = providers.gradleProperty("routecontractReleaseBaseUrl")
         .orElse("https://github.com/ym0506/routecontract/releases/download/v0.1.2")
@@ -102,15 +105,29 @@ if (routecontractPilotEnabled) {
         }
     }
 
+    // Reuse the existing plain_table test operation and setup so the review-only pilot cannot drift from it.
+    val testSourceSet = sourceSets.test.get()
     val routeContractPilot by sourceSets.creating {
         java.srcDir("src/routeContractPilot/java")
         compileClasspath += sourceSets.main.get().output
+        compileClasspath += testSourceSet.output
         runtimeClasspath += sourceSets.main.get().output
+        runtimeClasspath += testSourceSet.output
     }
     configurations[routeContractPilot.implementationConfigurationName]
         .extendsFrom(configurations.testImplementation.get())
     configurations[routeContractPilot.runtimeOnlyConfigurationName]
         .extendsFrom(configurations.testRuntimeOnly.get())
+    // The two supported Boot graphs differ, so each gets a complete lock for every resolvable pilot task input.
+    dependencyLocking {
+        lockMode.set(LockMode.STRICT)
+        lockFile.set(layout.projectDirectory.file("gradle/routecontract-pilot-$springBootVersion.lockfile"))
+    }
+    configurations.configureEach {
+        if (isCanBeResolved) {
+            resolutionStrategy.activateDependencyLocking()
+        }
+    }
     dependencies {
         add(routeContractPilot.implementationConfigurationName,
             "io.github.ym0506.routecontract:routecontract-shardingsphere-5.5:0.1.2@jar") {
@@ -132,7 +149,8 @@ if (routecontractPilotEnabled) {
                 .filterIsInstance<ResolvedDependencyResult>()
                 .single { dependency ->
                     val requested = dependency.requested
-                    requested is ModuleComponentSelector
+                    !dependency.isConstraint
+                            && requested is ModuleComponentSelector
                             && requested.group == "io.github.ym0506.routecontract"
                 }
             val requested = edge.requested as ModuleComponentSelector
@@ -179,6 +197,7 @@ if (routecontractPilotEnabled) {
     }
     tasks.named<JavaCompile>(routeContractPilot.compileJavaTaskName) {
         dependsOn(verifyRoutecontractArtifact)
+        dependsOn(tasks.named(testSourceSet.classesTaskName))
         javaCompiler.set(javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(17)) })
         options.release.set(17)
     }
