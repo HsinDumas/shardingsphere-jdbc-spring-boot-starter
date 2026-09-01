@@ -31,10 +31,10 @@ java {
 }
 
 repositories {
+    mavenCentral()
     if (!routecontractPilotEnabled) {
         mavenLocal()
     }
-    mavenCentral()
 }
 
 dependencies {
