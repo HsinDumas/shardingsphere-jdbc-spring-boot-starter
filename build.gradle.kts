@@ -31,9 +31,17 @@ java {
 }
 
 repositories {
-    mavenCentral()
     if (!routecontractPilotEnabled) {
         mavenLocal()
+    }
+    mavenCentral()
+}
+
+// Verification metadata belongs to the isolated pilot. Keep the existing Maven-local development
+// path for normal builds; pilot builds never use Maven local and remain fully verified.
+if (!routecontractPilotEnabled) {
+    configurations.configureEach {
+        resolutionStrategy.disableDependencyVerification()
     }
 }
 
