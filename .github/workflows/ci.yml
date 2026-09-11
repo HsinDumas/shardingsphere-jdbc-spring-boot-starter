@@ -28,3 +28,6 @@ jobs:
 
       - name: Build with Gradle (Spring Boot ${{ matrix.spring-boot-version }})
         run: ./gradlew --no-daemon clean build -PspringBootVersion=${{ matrix.spring-boot-version }}
+
+      - name: Check optional database-strategy pilot
+        run: ./gradlew --no-daemon --dependency-verification=strict routeContractPilotTest -ProutecontractPilot=true -PspringBootVersion=${{ matrix.spring-boot-version }}
